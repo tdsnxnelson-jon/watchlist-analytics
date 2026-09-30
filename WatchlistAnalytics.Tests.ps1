@@ -234,6 +234,8 @@ $definitions = $ast.FindAll({
                 Assert-True ($result.SchemaVersion -eq 2 -and $null -eq $result.PSObject.Properties['Alerts']) 'Wrong JSON contract.'
                 Assert-True ($jsonWrites[-1].Value -notmatch 'dummy-secret|X-Auth-Token') 'Credentials in output.'
                 Assert-True ($html -notmatch '<h2>Daily watchlist alerts|<h2>Ranking coverage|Time slices') 'Removed HTML sections still present.'
+                Assert-True ($html -match 'event\.shiftKey' -and $html -match 'const sortColumns = \[\]' -and $html -match 'priority \$\{sortIndex \+ 1\}') 'HTML multi-column sorting controls missing.'
+                Assert-True ($html -match 'return originalOrder\.get\(left\) - originalOrder\.get\(right\)') 'HTML sorting is not stable.'
                 $reportSection = ($html -split '<h2>Current report metadata</h2>')[1]
                 Assert-True ($reportSection -notmatch '<th>Created</th>|<th>Updated</th>') 'Report metadata still displays Created/Updated.'
                 Assert-True ($null -ne $result.PSObject.Properties['DailyAlerts'] -and $null -ne $result.PSObject.Properties['Coverage']) 'HTML changes removed JSON data.'

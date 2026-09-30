@@ -531,6 +531,9 @@ th button{font:inherit;font-weight:600;color:inherit;background:transparent;bord
         table.before(wrapper);
         wrapper.append(table);
         const headers = Array.from(table.querySelectorAll('th'));
+        const rows = Array.from(table.querySelectorAll('tr')).filter(row => row.querySelector('td'));
+        const originalOrder = new Map(rows.map((row, index) => [row, index]));
+        const sortColumns = [];
         headers.forEach((header, column) => {
             const label = header.textContent.trim();
             const numeric = /^(Alerts|PercentOfWatchlistAlerts|PercentOfAllAlerts|Top 50)$/.test(label);
@@ -540,6 +543,7 @@ th button{font:inherit;font-weight:600;color:inherit;background:transparent;bord
             const button = document.createElement('button');
             button.type = 'button';
             button.title = 'Sort by ' + label;
+            button.setAttribute('aria-label', 'Sort by ' + label);
             button.append(document.createTextNode(label));
             const indicator = document.createElement('span');
             indicator.className = 'sort-indicator';
@@ -547,33 +551,61 @@ th button{font:inherit;font-weight:600;color:inherit;background:transparent;bord
             indicator.textContent = '\u2195';
             button.append(indicator);
             header.replaceChildren(button);
-            button.addEventListener('click', () => {
-                const direction = header.getAttribute('aria-sort') === 'ascending' ? -1 : 1;
-                const rows = Array.from(table.querySelectorAll('tr')).filter(row => row.querySelector('td'));
-                const value = row => {
-                    const cell = row.cells[column];
+            button.addEventListener('click', event => {
+                const existingIndex = sortColumns.findIndex(sort => sort.column === column);
+                if (event.shiftKey) {
+                    if (existingIndex === -1) {
+                        sortColumns.push({ column, direction: 1, numeric, date, label });
+                    } else {
+                        sortColumns[existingIndex].direction *= -1;
+                    }
+                } else {
+                    const direction = existingIndex === 0 ? sortColumns[existingIndex].direction * -1 : 1;
+                    sortColumns.splice(0, sortColumns.length, { column, direction, numeric, date, label });
+                }
+                const value = (row, sort) => {
+                    const cell = row.cells[sort.column];
                     const text = (cell.dataset.sortValue ?? cell.textContent).trim();
                     if (!text || /^(Not provided by API|Unknown|Unavailable|Report link unavailable)$/.test(text)) return null;
-                    if (numeric) return Number.isFinite(Number(text)) ? Number(text) : null;
-                    if (date) return Number.isFinite(Date.parse(text)) ? Date.parse(text) : null;
+                    if (sort.numeric) return Number.isFinite(Number(text)) ? Number(text) : null;
+                    if (sort.date) return Number.isFinite(Date.parse(text)) ? Date.parse(text) : null;
                     return text;
                 };
-                const sorted = rows.map((row, index) => ({ row, index, value: value(row) }));
-                sorted.sort((left, right) => {
-                    if (left.value === null && right.value === null) return left.index - right.index;
-                    if (left.value === null) return 1;
-                    if (right.value === null) return -1;
-                    const comparison = numeric || date ? left.value - right.value : collator.compare(left.value, right.value);
-                    return comparison * direction || left.index - right.index;
+                rows.sort((left, right) => {
+                    for (const sort of sortColumns) {
+                        const leftValue = value(left, sort);
+                        const rightValue = value(right, sort);
+                        if (leftValue === null && rightValue === null) continue;
+                        if (leftValue === null) return 1;
+                        if (rightValue === null) return -1;
+                        const comparison = sort.numeric || sort.date
+                            ? leftValue - rightValue
+                            : collator.compare(leftValue, rightValue);
+                        if (comparison !== 0) return comparison * sort.direction;
+                    }
+                    return originalOrder.get(left) - originalOrder.get(right);
                 });
                 const parent = rows[0]?.parentElement;
-                sorted.forEach(entry => parent.append(entry.row));
-                headers.forEach(other => {
+                rows.forEach(row => parent.append(row));
+                headers.forEach((other, otherColumn) => {
+                    const sortIndex = sortColumns.findIndex(sort => sort.column === otherColumn);
                     other.setAttribute('aria-sort', 'none');
-                    other.querySelector('.sort-indicator').textContent = '\u2195';
+                    const otherButton = other.querySelector('button');
+                    const otherIndicator = other.querySelector('.sort-indicator');
+                    if (sortIndex === -1) {
+                        const otherLabel = otherButton.textContent.replace(/\s*[\u2191\u2193\u2195]\d*$/, '');
+                        otherButton.title = 'Sort by ' + otherLabel;
+                        otherButton.setAttribute('aria-label', 'Sort by ' + otherLabel);
+                        otherIndicator.textContent = '\u2195';
+                        return;
+                    }
+                    const sort = sortColumns[sortIndex];
+                    const directionName = sort.direction === 1 ? 'ascending' : 'descending';
+                    otherButton.title = `Sort by ${sort.label}; priority ${sortIndex + 1}, ${directionName}`;
+                    otherButton.setAttribute('aria-label', `Sort by ${sort.label}; priority ${sortIndex + 1}, ${directionName}`);
+                    otherIndicator.textContent = (sort.direction === 1 ? '\u2191' : '\u2193') + (sortIndex + 1);
+                    if (sortIndex === 0) other.setAttribute('aria-sort', directionName);
                 });
-                header.setAttribute('aria-sort', direction === 1 ? 'ascending' : 'descending');
-                indicator.textContent = direction === 1 ? '\u2191' : '\u2193';
             });
         });
     });

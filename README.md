@@ -158,10 +158,13 @@ with the feed ID and duplicates are merged by full ID, not by report name.
 Daily watchlist alerts and Ranking coverage are not displayed as HTML sections.
 Their data remains in JSON.
 
-All table headers are clickable sort buttons. Click again to reverse the order;
-keyboard users can activate them with Enter or Space. Counts and percentages sort
-numerically, dates chronologically, and unavailable dates stay at the bottom.
-Report metadata initially remains sorted by ReportTimestamp ascending.
+All table headers are clickable sort buttons. A normal click sorts by one column;
+click again to reverse the order. Shift+click adds a secondary column or reverses
+an active one without clearing the other sort columns. Numbered arrows show sort
+priority. Keyboard users can activate the buttons with Enter or Space while
+holding Shift to extend the sort. Counts and percentages sort numerically, dates
+chronologically, and unavailable values stay at the bottom. Report metadata
+initially remains sorted by ReportTimestamp ascending.
 
 Report metadata includes a Top 50 star marker when its name matches a positive-count
 entry in the returned top report-name ranking (up to 50 values). The tooltip notes
