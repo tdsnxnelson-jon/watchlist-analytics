@@ -1,0 +1,23 @@
+{
+  "BaseUrl": "https://defense.conferdeploy.net",
+  "OrgKey": "REPLACE_WITH_ORG_KEY",
+  "ApiId": "REPLACE_WITH_API_ID",
+  "ApiSecretEnvironmentVariable": "CBC_API_SECRET",
+  "Paths": {
+    "Watchlists": "/threathunter/watchlistmgr/v3/orgs/{orgKey}/watchlists",
+    "Report": "/threathunter/watchlistmgr/v3/orgs/{orgKey}/reports/{reportId}",
+    "FeedReports": "/threathunter/feedmgr/v2/orgs/{orgKey}/feeds/{feedId}/reports"
+  },
+  "AlertSearch": {
+    "Path": "/api/alerts/v7/orgs/{orgKey}/alerts/_search",
+    "BodyTemplate": {
+      "criteria": {}
+    }
+  },
+  "Analytics": {
+    "FacetRows": 50
+  },
+  "Recommendation": {
+    "HighAlertThreshold": 100000
+  }
+}
