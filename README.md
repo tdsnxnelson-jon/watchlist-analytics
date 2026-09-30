@@ -39,7 +39,8 @@ and `ApiId`. Do not leave the template placeholders in place. Use HTTPS.
 
 The config stores the **name** of the environment variable containing the API
 secret, not the secret itself. `ApiSecretEnvironmentVariable` defaults to
-`CBC_API_SECRET`. Set it in the same terminal that will run the script:
+`CBC_API_SECRET`. Set it in the same terminal that will run the script (do not
+use Ctrl-V to paste in you key. Right click and choose Paste.):
 
 ```powershell
 $secureSecret = Read-Host 'Carbon Black API secret' -AsSecureString
