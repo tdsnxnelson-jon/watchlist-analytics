@@ -287,11 +287,11 @@ function Get-FacetRanking {
     }
     $resultsProperty = $Aggregations.Facets.PSObject.Properties['results']
     if ($null -eq $resultsProperty) { throw 'Facet response is missing results.' }
-    $matches = @($resultsProperty.Value | Where-Object { $_.field -eq $Field })
-    if ($matches.Count -ne 1 -or $null -eq $matches[0].PSObject.Properties['values']) {
+    $facetCandidates = @($resultsProperty.Value | Where-Object { $_.field -eq $Field })
+    if ($facetCandidates.Count -ne 1 -or $null -eq $facetCandidates[0].PSObject.Properties['values']) {
         throw "Facet response is missing values for '$Field'."
     }
-    $rows = @(foreach ($value in $matches[0].values) {
+    $rows = @(foreach ($value in $facetCandidates[0].values) {
         $count = [int64]0
         if (-not [int64]::TryParse([string]$value.total, [ref]$count) -or $count -lt 0) { throw "Invalid count in '$Field' facet." }
         [pscustomobject]@{
