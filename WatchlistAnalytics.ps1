@@ -502,6 +502,8 @@ function ConvertTo-ReportMetadataHtml {
         $url = '{0}/enforce/watchlists/report/{1}' -f $BaseUrl.GetLeftPart([System.UriPartial]::Authority), [uri]::EscapeDataString([string]$sortedRows[$index].Id)
         $link = $table.CreateElement('a')
         $link.SetAttribute('href', $url)
+        $link.SetAttribute('target', '_blank')
+        $link.SetAttribute('rel', 'noopener noreferrer')
         $link.InnerText = 'View report'
         $null = $sourceCell.AppendChild($link)
     }

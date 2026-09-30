@@ -151,9 +151,10 @@ Open the generated HTML directly in a browser; no web server is needed. It conta
 - Warnings about coverage, attribution, and unavailable metadata.
 
 The report metadata table omits Created/Updated and provides a **View report**
-link in Source. Links use the tenant hostname and fully qualified report ID;
-opening them requires Carbon Black console access. Feed-local IDs are qualified
-with the feed ID and duplicates are merged by full ID, not by report name.
+link in Source. Links open in a new browser tab, use the tenant hostname and
+fully qualified report ID, and require Carbon Black console access. Feed-local
+IDs are qualified with the feed ID and duplicates are merged by full ID, not by
+report name.
 
 Daily watchlist alerts and Ranking coverage are not displayed as HTML sections.
 Their data remains in JSON.

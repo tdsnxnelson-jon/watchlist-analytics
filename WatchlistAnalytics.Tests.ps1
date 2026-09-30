@@ -307,6 +307,7 @@ $definitions = $ast.FindAll({
     $anchors = @($linkTable.SelectNodes('/table/tr/td/a'))
     Assert-True ($anchors.Count -eq 2 -and $anchors[0].GetAttribute('href') -ceq 'https://defense-prod05.conferdeploy.net/enforce/watchlists/report/98e85f88-e550-4dd4-be86-db9683d8496e') 'Report URL or timestamp order incorrect.'
     Assert-True ($anchors[1].GetAttribute('href') -ceq 'https://defense-prod05.conferdeploy.net/enforce/watchlists/report/id%2Fwith%3F%22%26') 'Report ID not URL encoded.'
+    Assert-True (@($anchors | Where-Object { $_.GetAttribute('target') -ne '_blank' -or $_.GetAttribute('rel') -ne 'noopener noreferrer' }).Count -eq 0) 'Report links must open in a new tab without opener access.'
     Assert-True ($linkHtml -notmatch '<script>|/api/original|<th>Created</th>|<th>Updated</th>' -and $linkHtml -match 'View report') 'Report table escaping or columns incorrect.'
     Assert-True (($linkRows | ConvertTo-Json) -ceq $originalRows) 'HTML links mutated raw metadata.'
     [xml]$markedTable = ConvertTo-ReportMetadataHtml -Rows $linkRows -BaseUrl 'https://example.invalid' -RankedReports @([pscustomobject]@{ Name='Earlier report'; Alerts=42 })
